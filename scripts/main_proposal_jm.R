@@ -2,6 +2,8 @@ library(here)
 library(tidyverse)
 library(httr)
 
+# Proposal of API key system and wrapper function to fetch data from the Guardian API.
+
 # Save your API key in a api_credentials.csv file in the folder api_key. The column name the key is stored under must be named api_key. 
 
 # Load the API key and store in a variable
