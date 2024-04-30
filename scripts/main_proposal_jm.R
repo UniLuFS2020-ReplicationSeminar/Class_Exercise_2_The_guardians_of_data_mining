@@ -73,7 +73,7 @@ results <- get_guardian_data(api_key, search_term, from_date, to_date, page)
 links <- results %>% 
   map_chr("webUrl")
 
-# Print the links
+# Print the fetched links
 
 print(links)
 
