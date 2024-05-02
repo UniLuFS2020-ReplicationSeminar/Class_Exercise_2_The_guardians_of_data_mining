@@ -6,6 +6,8 @@ library(httr)
 library(rvest)
 library(httr2)
 
+my_email <- "add_your_email_here" #To be polite
+
 # Choose the Version whiche suites you the best :)!
 
 
@@ -66,8 +68,10 @@ get_guardian_data <- function(api_key, search_term, from_date, to_date, page) {
   
   # Make the API call
   
-  response <- httr::GET(url = guardian_api_base_url, query = params)
-  
+  response <- httr::GET(url = guardian_api_base_url, query = params, 
+                        add_headers(From = my_email,
+                                    `User-Agent` = R.Version()$version.string))
+
   # Check if the API call was successful
   
   if (response$status_code == 200) {
@@ -124,7 +128,10 @@ for (i in seq_along(links)) {
   Sys.sleep(1) 
   
   # access the links with the articles  
-  r <- httr::GET(url = links[i], query = list("show-blocks" = "all", "api-key" = api_key))
+  r <- httr::GET(url = links[i], query = list("show-blocks" = "all", "api-key" = api_key),
+                 add_headers(From = my_email,
+                             `User-Agent` = R.Version()$version.string)
+  )
   
   if (r$status_code == 200) {
     
@@ -145,18 +152,24 @@ for (i in seq_along(links)) {
   }
 }
 
+
 # Combine results into a single character vector
+
+all_text <- list()
+
 all_text <- unlist(results)
+
+# Cleaning the Responses
+
+pattern <- ('^\\{"response')
+
+clean_text = all_text[which(str_detect(all_text, pattern) == FALSE)]
+
+#### Create a Corpus ####
 
 # Create a corpus
 corpus <- quanteda::corpus(all_text)
 
 # View the corpus
 View(corpus)
-
-# Return the results
-results
-
-#### Create a Corpus ####
-
 
