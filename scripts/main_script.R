@@ -44,7 +44,6 @@ api_key <- read_csv(here("api_key/api_credentials.csv")) %>%
 
 api_key <- rstudioapi::askForPassword()
 
-
 #### Get the links which are used ####
 
 # Define the URL for the API
@@ -117,62 +116,47 @@ print(links)
 
 #### Try to get the html text of the articles ####
 
-for (i in length(links)) {
+results <- list()
+
+for (i in seq_along(links)) {
   
   # To be a little polite
-  
   Sys.sleep(1) 
   
   # access the links with the articles  
-
+  r <- httr::GET(url = links[i], query = list("show-blocks" = "all", "api-key" = api_key))
   
-  r <- httr::GET(url = links[i], query = list("show-blocks" = "all",
-                                              "api-key" = api_key))
-          
-  
-  if (response$status_code == 200) {
+  if (r$status_code == 200) {
     
     # Parse the response
-    
     html_content <- httr::content(r, as = "text")
-    
     html_parsed <- read_html(html_content)
-    
     paragraphs <- html_nodes(html_parsed, "p")
-    text[i] <- html_text(paragraphs)
     
+    # Extract text from paragraphs
+    text <- html_text(paragraphs)
     
-    html_content <- stringr::str_extract_all(html_content, "<p>(.*)</p>")
-    
-    
-    # Extract the relevant information
-    
-   
-    
-    text[i] <- html_text(html_parsed)
-    
-    corpus <- quanteda::corpus(text)
-    
-    View(corpus)
-    # Return the results
-    
-    return(results)
+    # Append to results list
+    results[[i]] <- text
     
   } else {
-    
     # If the API call was not successful, print an error message
-    
-    message("Error: API call failed with status code ", response$status_code)
-    
-    # Return NULL
-    
-    return(NULL)
+    message("Error: API call failed with status code ", r$status_code)
   }
 }
 
+# Combine results into a single character vector
+all_text <- unlist(results)
 
+# Create a corpus
+corpus <- quanteda::corpus(all_text)
+
+# View the corpus
+View(corpus)
+
+# Return the results
+results
 
 #### Create a Corpus ####
-
 
 
