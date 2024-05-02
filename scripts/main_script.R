@@ -152,7 +152,6 @@ for (i in seq_along(links)) {
   }
 }
 
-
 # Combine results into a single character vector
 
 all_text <- list()
@@ -165,10 +164,10 @@ pattern <- ('^\\{"response')
 
 clean_text = all_text[which(str_detect(all_text, pattern) == FALSE)]
 
-#### Create a Corpus ####
+#### Create an Work with the Corpus ####
 
 # Create a corpus
-corpus <- quanteda::corpus(all_text)
+corpus <- quanteda::corpus(clean_text)
 
 # View the corpus
 View(corpus)
