@@ -40,6 +40,11 @@ api_key <- Sys.getenv(x= "Key")
 api_key <- read_csv(here("api_key/api_credentials.csv")) %>% 
   pull(api_key)
 
+####  Setup API Key - Version 3 ####
+
+api_key <- rstudioapi::askForPassword()
+
+
 #### Get the links which are used ####
 
 # Define the URL for the API
