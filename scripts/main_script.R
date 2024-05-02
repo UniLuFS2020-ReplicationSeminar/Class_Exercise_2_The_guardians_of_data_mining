@@ -98,21 +98,29 @@ get_guardian_data <- function(api_key, search_term, from_date, to_date, page) {
 
 # Define the search term, from date, to date, and page number. Test the function.
 
-search_term <- "climate"
-from_date <- "2022-01-01"
-to_date <- "2022-01-31"
+search_term <- "assange"
+from_date <- "2014-01-01"
+to_date <- "2023-12-31"
+
+all_results <- list()
 page <- 1
 
-results <- get_guardian_data(api_key, search_term, from_date, to_date, page)
+while (TRUE) {
+  results <- get_guardian_data(api_key, search_term, from_date, to_date, page)
+  if (is.null(results) || length(results) == 0) {
+    break
+  }
+  all_results <- c(all_results, results)
+  page <- page + 1
+}
 
-# Extract links from the results an store in a variable
-
-links <- results %>% 
-  map_chr("apiUrl") # Changed so the links can be used with the API
+# Extract links from all_results and store in a variable
+links <- all_results %>% 
+  map_chr("apiUrl")
 
 # Print the fetched links
-
 print(links)
+
 
 #### Try to get the html text of the articles ####
 
