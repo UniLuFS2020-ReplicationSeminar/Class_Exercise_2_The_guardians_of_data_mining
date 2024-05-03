@@ -34,9 +34,9 @@ We hypothesise that XYXY
 We found several methods to set up the API key.
 
 ### 3.1.1 Version 1:
-```{r, eval=FALSE}
+```{r}
 # check wd
-getwd()
+## getwd()
 
 # Create File using the windows editor
 # Write on the first line without any space Key=Your_Key
@@ -48,28 +48,28 @@ getwd()
 # Restart your R-Session
 
 # Use this Code to read in your Key - It should appear in the Global Environment
-api_key <- Sys.getenv(x= "Key")
+## api_key <- Sys.getenv(x= "Key")
 ```
 
 ### 3.1.2 Version 2:
-```{r, eval=FALSE}
+```{r}
 # Proposal of API key system and wrapper function to fetch data from the Guardian API.
 
 # Save your API key in an api_credentials.csv file in the folder api_key. The column name the key is stored under must be named api_key. 
 
 # Load the API key and store in a variable
 
-api_key <- read_csv(here("api_key/api_credentials.csv")) %>% 
-  pull(api_key)
+## api_key <- read_csv(here("api_key/api_credentials.csv")) %>% 
+  ## pull(api_key)
 ```
 
 ### 3.1.3 Version 3:
-```{r, eval=FALSE}
+```{r}
 api_key <- rstudioapi::askForPassword()
 ```
 
 ## 3.2 Create a wrapper function to get the data from the API
-```{r, eval=FALSE}
+```{r}
 # Define the URL for the API
 guardian_api_base_url <- "https://content.guardianapis.com/search"
 
