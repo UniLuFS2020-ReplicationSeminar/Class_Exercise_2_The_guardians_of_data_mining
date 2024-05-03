@@ -52,6 +52,8 @@ api_key <- rstudioapi::askForPassword()
 
 guardian_api_base_url <- "https://content.guardianapis.com/search"
 
+my_email <- "jan.murer@stud.unilu.ch"
+
 # Create wrapper function to get the data from the API
 
 get_guardian_data <- function(api_key, search_term, from_date, to_date, page) {
