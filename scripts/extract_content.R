@@ -1,11 +1,5 @@
 # Load required libraries
 library(quanteda)
-library(tidyverse)
-library(tidytext)
-library(ggplot2)
-
-# Load the AFINN lexicon data frame from tidytext
-data("afinn")
 
 # Convert the list of titles to a corpus
 corpus <- corpus(sapply(all_results, function(x) x$webTitle))
