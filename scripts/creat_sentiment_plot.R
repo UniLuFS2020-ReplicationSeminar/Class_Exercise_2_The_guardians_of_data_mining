@@ -6,6 +6,8 @@ library(tidytext)
 library(dplyr)
 library(jsonlite)
 library(rvest)
+library(tidyr)
+library(stringr)
 
 
 getwd()
@@ -63,14 +65,30 @@ sentiment_prob_no_zero <- sentiment_prop_all %>%
   filter(Sentiment != 0) 
 
 sentiment_prob_no_zero$Sentiment <- ifelse(sentiment_prob_no_zero$Polarität == "negative", 
-                                           sentiment.prop_all$Sentiment *(- 1), 
-                                           sentiment.prop_all$Sentiment)
+                                           sentiment_prop_all$Sentiment *(- 1), 
+                                           sentiment_prop_all$Sentiment)
 
 sentiment_prob_no_zero$Datum <- as.Date(sentiment_prob_no_zero$Datum)
+
+
+
+sentiment_prob_no_zero_2023 <- sentiment_prob_no_zero %>%
+  filter(grepl("2023", Datum))
+
+
+sentiment_prob_strong_2023 <- sentiment_prob_no_zero %>%
+  filter(Sentiment != 0) %>%
+  filter(Sentiment >= 0.1 | Sentiment <= -0.1)
+
 
 sentiment_prob_strong <- sentiment_prob_no_zero %>%
   filter(Sentiment != 0) %>%
   filter(Sentiment >= 0.1 | Sentiment <= -0.1)
+
+saveRDS(sentiment_prob_no_zero_2023, "sent_prob_no_0_2023.rds")
+saveRDS(sentiment_prob_strong_2023, "sent_strong_no_0_2023.rds")
+saveRDS(sentiment_prob_no_zero, "sentiment_prob_no_zero.rds")
+saveRDS(sentiment_prob_strong, "sentiment_prob_strong.rds")
 
 
 
@@ -92,7 +110,7 @@ ggplot(sentiment_prob_strong, aes(Datum, Sentiment)) +
   scale_colour_brewer(palette = "Set1") + 
   scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
-  ggtitle("sentiment-scores titles over time 'only stronger values")  +
+  ggtitle("sentiment-scores titles over time 'only stronger values'")  +
   xlab("month") +
   geom_smooth()
 

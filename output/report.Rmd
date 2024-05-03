@@ -21,11 +21,11 @@ library(httr2)
 
 This report aims to answer the following research question:
 
-*"Research question"*
+How have sentiments towards the titles relating to Assange changed over time?
 
 # 2. Hypothesis
 
-We hypothesise that XYXY
+We hypothesise that the titles changed over time and got more negativ when Assange was in Danger of extradite to the USA.
 
 # 3. Code
 
@@ -111,7 +111,150 @@ get_guardian_data <- function(api_key, search_term, from_date, to_date, page) {
 }
 ```
 
+## Creat a Function to get the body of the articles
+
+```{r}
+search_term <- "assange"
+from_date <- "2014-01-01"
+to_date <- "2023-12-31"
+
+all_results <- list()
+page <- 1
+
+while (TRUE) {
+  results <- get_guardian_data(api_key, search_term, from_date, to_date, page)
+  if (is.null(results) || length(results) == 0) {
+    break
+  }
+  all_results <- c(all_results, results)
+  page <- page + 1
+}
+
+links <- all_results %>% 
+  map_chr("apiUrl")
+
+#### Try to get the html text of the articles ####
+
+results <- list()
+
+for (i in seq_along(links)) {
+  
+  # To be a little polite
+  Sys.sleep(1) 
+  
+  # access the links with the articles  
+  r <- httr::GET(url = links[i], query = list("show-blocks" = "all", "api-key" = api_key),
+                 add_headers(From = my_email,
+                             `User-Agent` = R.Version()$version.string)
+  )
+  
+  if (r$status_code == 200) {
+    
+    # Parse the response
+    html_content <- httr::content(r, as = "text")
+    html_parsed <- read_html(html_content)
+    paragraphs <- html_nodes(html_parsed, "p")
+    
+    # Extract text from paragraphs
+    text <- html_text(paragraphs)
+    
+    # Append to results list
+    results[[i]] <- text
+    
+  } else {
+    # If the API call was not successful, print an error message
+    message("Error: API call failed with status code ", r$status_code)
+  }
+}
+
+# Combine results into a single character vector
+
+all_text <- list()
+
+all_text <- unlist(results)
+
+# Cleaning the Responses
+
+pattern <- ('^\\{"response')
+
+clean_text = all_text[which(str_detect(all_text, pattern) == FALSE)]
+
+
+```
+
+## Some Problems
+
+After a certain time, everyone in our group had Error 402 because we sent the API over 500 requests. We were therefore unable to download the texts for the individual articles on Assange. We therefore decided to limit our analysis to the titles. We had saved these on our hard drives.
 
 # 4. Results
+
+In our analysis, we analysed the sentiment score of the headlines about Assange, as shown in the following two plots. The value 1 corresponds only to positive words in the title, the value 2 corresponds only to negative words in the title. The values in between show the proportions of positive and negative words respectively.
+
+## Over the hole time
+
+```{r}
+sentiment_prob_no_zero <- readRDS("sentiment_prob_no_zero.rds")
+sentiment_prob_strong <- readRDS("sentiment_prob_strong.rds")
+
+# Plot 1
+
+ggplot(sentiment_prob_no_zero, aes(Datum, Sentiment)) + 
+  geom_point(size = 1) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "lightgray") + 
+  scale_colour_brewer(palette = "Set1") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ggtitle("sentiment-scores titles over time") + 
+  xlab("month") +
+  geom_smooth()
+
+```
+
+```{r}
+# second plot
+
+ggplot(sentiment_prob_strong, aes(Datum, Sentiment)) + 
+  geom_point(size = 1) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "lightgray") + 
+  scale_colour_brewer(palette = "Set1") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ggtitle("sentiment-scores titles over time 'only stronger values'")  +
+  xlab("month") +
+  geom_smooth()
+
+```
+```{r}
+```
+
+## Only 2023
+
+```{r}
+sentiment_prob_no_zero <- readRDS("sent_prob_no_0_2023.rds")
+sentiment_prob_strong <- readRDS("sent_strong_no_0_2023.rds")
+
+ggplot(sentiment_prob_no_zero_2023, aes(Datum, Sentiment)) + 
+  geom_point(size = 1) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "lightgray") + 
+  scale_colour_brewer(palette = "Set1") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ggtitle("sentiment-scores titles over time") + 
+  xlab("month") +
+  geom_smooth()
+```
+
+```{r}
+ggplot(sentiment_prob_strong_2023, aes(Datum, Sentiment)) + 
+  geom_point(size = 1) + 
+  geom_hline(yintercept = 0, linetype = "dashed", color = "lightgray") + 
+  scale_colour_brewer(palette = "Set1") + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  ggtitle("sentiment-scores titles over time 'only stronger values'")  +
+  xlab("month") +
+  geom_smooth()
+
+```
 
 # 5. Discussion
