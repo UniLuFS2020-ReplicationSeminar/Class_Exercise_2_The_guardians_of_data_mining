@@ -1,5 +1,13 @@
 #### Calculate Sentiment-Scores: ####
 
+library(quanteda)
+library(httr)
+library(tidytext)
+library(dplyr)
+library(jsonlite)
+library(rvest)
+
+
 getwd()
 
 scraped_data<- read_json("content_list.json")
